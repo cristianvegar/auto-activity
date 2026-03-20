@@ -1,0 +1,27 @@
+name: Auto Commit
+
+on:
+  schedule:
+    - cron: "0 14 * * *"  # 9 AM Colombia
+  workflow_dispatch:
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repo
+        uses: actions/checkout@v3
+
+      - name: Configurar git
+        run: |
+          git config --global user.name "Cristian Vega"
+          git config --global user.email "crisvegarodri@gmail.com"
+
+      - name: Ejecutar script
+        run: |
+          python auto_commit.py
+
+      - name: Subir cambios
+        run: |
+          git push
