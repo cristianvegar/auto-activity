@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
   schedule:
     - cron: "0 14 * * *"  # mañana
-    - cron: "0 18 * * *"  # medio día
+    # - cron: "0 18 * * *"  # medio día
     - cron: "0 22 * * *"  # tarde
   workflow_dispatch:
 
@@ -27,10 +27,15 @@ jobs:
           git config --global user.name "Cristian Vega"
           git config --global user.email "crisvegarodri@gmail.com"
 
+      - name: Add GitLab remote
+        run: |
+          git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/cristianvega/auto-activity.git
+          
       - name: Run script
         run: |
           python auto_commit.py
 
-      - name: Push
+      - name: Push to GitHub & GitLab
         run: |
-          git push
+          git push origin main
+          git push gitlab main
