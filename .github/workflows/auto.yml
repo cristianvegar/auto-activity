@@ -2,23 +2,28 @@ name: Auto Commit
 
 on:
   push:
-    branches: [ "main" ]   # 👈 esto lo hace visible
+    branches: [ "main" ]
   schedule:
-    - cron: "0 14 * * *"  # automático diario
-  workflow_dispatch:       # 👈 botón manual
+    - cron: "0 14 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   commit:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Config Git
         run: |
           git config --global user.name "Cristian Vega"
-          git config --global user.email "TU_EMAIL_AQUI"
+          git config --global user.email "TU_EMAIL"
 
       - name: Run script
         run: |
