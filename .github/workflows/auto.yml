@@ -1,19 +1,16 @@
-name: Auto Commit
+name: AM Auto Commit
 
 on:
-  push:
-    branches: [ "main" ]
   schedule:
-    - cron: "0 14 * * *"  # mañana
-    # - cron: "0 18 * * *"  # medio día
-    - cron: "0 22 * * *"  # tarde
+    - cron: "0 14 * * 1-5"
   workflow_dispatch:
 
 permissions:
   contents: write
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+concurrency:
+  group: auto-activity-main
+  cancel-in-progress: false
 
 jobs:
   commit:
@@ -29,15 +26,22 @@ jobs:
           git config --global user.name "Cristian Vega"
           git config --global user.email "crisvegarodri@gmail.com"
 
-      - name: Add GitLab remote
+      - name: Connect GitLab
         run: |
+          git remote remove gitlab || true
           git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/cristianvega/auto-activity.git
-          
+
+      - name: Sync from GitLab
+        run: |
+          git fetch gitlab main
+          git checkout main
+          git rebase gitlab/main || (git rebase --abort && echo "skip rebase")
+
       - name: Run script
         run: |
           python auto_commit.py
 
-      - name: Push to GitHub & GitLab
+      - name: Push GitLab and GitHub
         run: |
-          git push origin main
-          git push gitlab main
+          git push origin main --force-with-lease
+          git push gitlab main --force-with-lease
