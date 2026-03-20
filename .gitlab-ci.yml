@@ -25,5 +25,8 @@ auto_commit:
 
     - python3 auto_commit.py
 
+    # 🔐 usar token correcto para GitLab
+    - git remote set-url origin https://oauth2:${GITLAB_TOKEN}@gitlab.com/cristianvega/auto-activity.git
+
     - git push origin main --force-with-lease
     - git push github main --force-with-lease
