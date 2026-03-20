@@ -1,0 +1,26 @@
+stages:
+  - commit
+
+auto_commit:
+  stage: commit
+
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+  before_script:
+    - apt-get update && apt-get install -y python3 git
+
+    - git config --global user.name "Cristian Vega"
+    - git config --global user.email "crisvegarodri@gmail.com"
+
+    - git remote add github https://oauth2:${GITHUB_TOKEN}@github.com/cristianvegar/auto-activity.git
+
+  script:
+    - git fetch github main
+    - git checkout main
+    - git rebase github/main || (git rebase --abort && echo "skip rebase")
+
+    - python3 auto_commit.py
+
+    - git push origin main --force-with-lease
+    - git push github main --force-with-lease
