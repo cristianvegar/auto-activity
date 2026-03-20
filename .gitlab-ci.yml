@@ -16,8 +16,11 @@ auto_commit:
     - git remote add github https://oauth2:${GITHUB_TOKEN}@github.com/cristianvegar/auto-activity.git
 
   script:
+    - git fetch origin main
     - git fetch github main
-    - git checkout main
+
+    - git checkout -B main origin/main
+    
     - git rebase github/main || (git rebase --abort && echo "skip rebase")
 
     - python3 auto_commit.py
