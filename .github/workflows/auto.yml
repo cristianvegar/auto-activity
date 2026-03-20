@@ -25,7 +25,7 @@ jobs:
       - name: Config Git
         run: |
           git config --global user.name "Cristian Vega"
-          git config --global user.email "TU_EMAIL"
+          git config --global user.email "crisvegarodri@gmail.com"
 
       - name: Run script
         run: |
