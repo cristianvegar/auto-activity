@@ -31,17 +31,31 @@ jobs:
           git remote remove gitlab || true
           git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/cristianvega/auto-activity.git
 
-      - name: Sync from GitLab
+      # SYNC INICIAL (estable)
+      - name: Initial sync
         run: |
+          git fetch origin main
           git fetch gitlab main
-          git checkout main
-          git rebase gitlab/main || (git rebase --abort && echo "skip rebase")
+
+          git checkout -B main origin/main
+
+          git rebase gitlab/main || (git rebase --abort && echo "skip rebase gitlab")
 
       - name: Run script
         run: |
           python auto_commit.py
 
-      - name: Push GitLab and GitHub
+      # SYNC FINAL (clave para evitar stale)
+      - name: Final sync before push
+        run: |
+          git fetch origin main
+          git fetch gitlab main
+
+          git rebase origin/main || (git rebase --abort && echo "skip rebase origin")
+          git rebase gitlab/main || (git rebase --abort && echo "skip rebase gitlab")
+
+      # PUSH ROBUSTO
+      - name: Push GitHub and GitLab
         run: |
           git push origin main --force-with-lease
           git push gitlab main --force-with-lease
