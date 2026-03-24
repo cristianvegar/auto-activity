@@ -2,6 +2,11 @@ import random
 import subprocess
 import time
 from datetime import datetime
+import os
+
+# CONFIGURACIÓN 
+AUTHOR_NAME = "Cristian Vega"
+AUTHOR_EMAIL = "crisvegarodri@gmail.com"
 
 def run(cmd):
     result = subprocess.run(cmd, shell=True)
@@ -35,18 +40,25 @@ def modify_file():
             f.write(f'{{"value": {random.randint(1,1000)}, "time": "{datetime.now()}"}},\n')
 
 def is_weekday():
-    return datetime.today().weekday() < 5  # 0=Lunes, 4=Viernes
+    return datetime.today().weekday() < 5
 
 def decide_commit_volume():
-    # 20% de días muy activos
     if random.random() < 0.2:
         return random.randint(5, 10)
     else:
         return random.randint(1, 5)
 
 def maybe_skip_day():
-    # 15% probabilidad de no hacer nada
     return random.random() < 0.15
+
+def make_commit():
+    run("git add .")
+
+    message = random_commit_message()
+
+    # FORZAR AUTHOR
+    cmd = f'git commit --author="{AUTHOR_NAME} <{AUTHOR_EMAIL}>" -m "{message}"'
+    return run(cmd)
 
 def main():
     if not is_weekday():
@@ -63,20 +75,18 @@ def main():
     for i in range(commits):
         modify_file()
 
-        run("git add .")
-
-        commit_result = run(f'git commit -m "{random_commit_message()}"')
+        commit_result = make_commit()
 
         if commit_result != 0:
             print("No hubo cambios, skip commit")
             continue
 
-        # Delay entre commits (simula trabajo real)
         sleep_time = random.randint(10, 90)
         print(f"Esperando {sleep_time}s...")
         time.sleep(sleep_time)
 
-    run("git push origin main")
+    # IMPORTANTE: el push lo manejan los pipelines
+    print("Commits generados correctamente")
 
 if __name__ == "__main__":
     main()
